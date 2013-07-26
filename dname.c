@@ -32,6 +32,7 @@
  */
 
 #include "dname.h"
+#include "util.h"
 
 #include <assert.h>
 #include <ctype.h>
@@ -258,18 +259,18 @@ dname_str2wire(uint8_t* wire, const char* str)
                 break;
             case '\\':
                 /* Handle escaped characters (RFC1035 5.1) */
-                if (isdigit(s[1]) && isdigit(s[2]) && isdigit(s[3])) {
-                    int val = 0;
-/* (ldns_hexdigit_to_int(s[1]) * 100 +
-                        ldns_hexdigit_to_int(s[2]) * 10 +
-                        ldns_hexdigit_to_int(s[3])); */
+                if (s[1] && s[2] && s[3]
+                    && isdigit(s[1]) && isdigit(s[2]) && isdigit(s[3])) {
+                    int val = (util_hexdigit2int(s[1]) * 100 +
+                        util_hexdigit2int(s[2]) * 10 +
+                        util_hexdigit2int(s[3]));
+                    s += 3;
                     if (0 <= val && val <= 255) {
-                        s += 3;
                         *p = val;
                     } else {
-                        *p = *++s;
+                        *p = 0;
                     }
-                } else if (s[1] != '\0') {
+                } else if (s[1] != '\0' && !isdigit(s[1])) {
                     *p = *++s;
                 }
                 break;
@@ -329,7 +330,8 @@ void dname_print(FILE* fd, dname_type* dname, unsigned int line)
             uint8_t ch = *src++;
             if (isalnum(ch) || ch == '-' || ch == '_') {
                 *dst++ = ch;
-            } else if (ch == '.' || ch == '\\') {
+            } else if (ch == '.' || ch == '\\' || ch == '(' || ch == ')'
+                || ch == ';') {
                 *dst++ = '\\';
                 *dst++ = ch;
             } else {
