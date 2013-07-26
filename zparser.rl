@@ -161,42 +161,42 @@
 
     # Errors.
     action zerror_digit {
-        fprintf(stderr, "not a digit: %c\n", fc);
+        fprintf(stderr, "error: line %d: not a digit: %c\n", parser->line, fc);
         parser->number = 0;
         fhold; fgoto line;
     }
     action zerror_entry {
-        fprintf(stderr, "line %d: bad entry\n", parser->line);
+        fprintf(stderr, "error: line %d: bad entry\n", parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_dollar_origin {
-        fprintf(stderr, "line %d: bad origin directive\n", parser->line);
+        fprintf(stderr, "error: line %d: bad origin directive\n", parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_dollar_ttl {
-        fprintf(stderr, "line %d: bad ttl directive\n", parser->line);
+        fprintf(stderr, "error: line %d: bad ttl directive\n", parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_label_ddd {
-        fprintf(stderr, "line %d: bad octet in label\n", parser->line);
+        fprintf(stderr, "error: line %d: bad octet in label\n", parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_label_x {
-        fprintf(stderr, "line %d: bad escape in label\n", parser->line);
+        fprintf(stderr, "error: line %d: bad escape in label\n", parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_label_overflow {
-        fprintf(stderr, "line %d: label overflow\n", parser->line);
+        fprintf(stderr, "error: line %d: label overflow\n", parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_timeformat {
-        fprintf(stderr, "line %d: ttl time format error\n", parser->line);
+        fprintf(stderr, "error: line %d: ttl time format error\n", parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
@@ -229,7 +229,7 @@
     #                octet is assumed to be text and is not checked for
     #                special meaning.
     label_ddd = '\\'                     >zparser_label_octet2wire_init
-              . digit {3}                $zparser_label_octet2wire
+              . [0-7] {3}                $zparser_label_octet2wire
                                          $!zerror_label_ddd;
 
     # RFC 1035: \X where X is any character other than a digit (0-9), is
