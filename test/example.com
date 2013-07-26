@@ -5,11 +5,16 @@ $ORIGIN ex\789am\123ple.com.
 $ORIGIN ex\456am\123ple.com.
 $ORIGIN ex\.am\;ple.com.
 $ORIGIN ex\.am\0ple.com.
-
+$ORIGIN example.com
+$ORIGIN $origin
 
 $TTL 3601
+$TTL 360as1
+$TTL 36h01
+$TTL 3 29
+$TTL 9 ;29
    
- 	 	 	 
+; some blank lines and bad entries
 		
  asldaklasd asd'
 asd
@@ -22,20 +27,15 @@ asd
 	  	 	 ;	 	;; 	
 aap
 
-$TTL 360as1
 
-$TTL 36h01
- 
-$TTL 3 29
-$TTL 9 ;29
-
-$ORIGIN example.com
-
-$ORIGIN $origin
+; start with zone contents
 
 $ORIGIN www.example.com.
 
-test
+test			RRTODO
+			RRTODO
+pom.example.com.	RRTODO
+@			RRTODO
 
 $TTL 3w12s
 
