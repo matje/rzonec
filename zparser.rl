@@ -24,7 +24,6 @@
     action zparser_decimal_digit {
         parser->number *= 10;
         parser->number += (fc - '0');
-        fprintf(stderr, "line %d: digit %c number %u\n", parser->line, fc, (unsigned int) parser->number);        
     }
     action zparser_timeformat {
         switch (fc) {
@@ -51,23 +50,14 @@
         }
         parser->seconds += parser->number;
         parser->number = 0;
-        fprintf(stderr, "line %d: time format %c seconds %u\n", parser->line, fc, (unsigned int) parser->seconds);
-    }
-    action zparser_decimal_number_start {
-        parser->number = 0;
-        fprintf(stderr, "line %d: start number %u\n", parser->line, (unsigned int) parser->number);        
-    }
-    action zparser_decimal_number_end {
-        fprintf(stderr, "line %d: end number %u\n", parser->line, (unsigned int) parser->number);
     }
     action zparser_ttl_start {
         parser->seconds = 0;
         parser->number = 0;
-        fprintf(stderr, "line %d: start time %u\n", parser->line, (unsigned int) parser->number);
     }
     action zparser_ttl_end {
+        parser->seconds += parser->number;
         parser->number = parser->seconds;
-        fprintf(stderr, "line %d: end time %u\n", parser->line, (unsigned int) parser->number);
     }
     action zparser_dollar_ttl {
         parser->ttl = parser->number;
@@ -230,7 +220,7 @@
                                      $zparser_timeformat
                                      $!zerror_timeformat;
     decimal_number = digit+          $zparser_decimal_digit;
-    time_value     = (decimal_number . timeformat)+;
+    time_value     = (decimal_number . timeformat)+ . decimal_number?;
     
     ## Domain name parsing, absolute dnames, relative dnames, labels.
 
