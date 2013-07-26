@@ -74,7 +74,7 @@
             parser->dname_wire[parser->dname_size] = fc;
             parser->dname_size++;
         } else {
-            fprintf(stderr, "line %d: domain name overflow\n", parser->line);
+            fprintf(stderr, "error: line %d: domain name overflow\n", parser->line);
             parser->totalerrors++;
             fhold; fgoto line;
         }
@@ -84,7 +84,7 @@
             parser->dname_wire[parser->dname_size] = 0;
             parser->dname_size++;
         } else {
-            fprintf(stderr, "line %d: domain name overflow\n", parser->line);
+            fprintf(stderr, "error: line %d: domain name overflow\n", parser->line);
             parser->totalerrors++;
             fhold; fgoto line;
         }
@@ -228,20 +228,22 @@
     #                the decimal number described by DDD.  The resulting
     #                octet is assumed to be text and is not checked for
     #                special meaning.
-    label_ddd = '\\'                     >zparser_label_octet2wire_init
-              . [0-7] {3}                $zparser_label_octet2wire
+    label_ddd = [0-7] {3}                >zparser_label_octet2wire_init
+                                         $zparser_label_octet2wire
                                          $!zerror_label_ddd;
 
     # RFC 1035: \X where X is any character other than a digit (0-9), is
     #              used to quote that character so that its special meaning
     #              does not apply.  For example, "\." can be used to place
     #              a dot character in a label.
-    label_x = '\\' . ^digit              %zparser_label_char2wire
+    label_x = ^digit                     $zparser_label_char2wire
                                          $!zerror_label_x;
+
+    label_escape = '\\' . (label_x | label_ddd);
 
     label_char = ([^().\"\$\\] -- space -- comment) $zparser_label_char2wire;
 
-    label_character = (label_char | label_x | label_ddd);
+    label_character = (label_char | label_escape);
 
     # RFC 1035: The labels in the domain name are expressed as character
     # strings. MM: But requires different processing then for non-labels.
