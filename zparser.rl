@@ -104,9 +104,12 @@
         parser->label_count = 0;
         parser->label = parser->dname_wire;
     }
-    #action zparser_rel_dname_end {
-    #    fprintf(stdout, "relative dname: parsed\n");
-    #}
+    action zparser_dname_origin {
+        parser->dname = parser->origin;
+    }
+    action zparser_rel_dname_end {
+        fprintf(stdout, "relative dname: parsed\n");
+    }
     action zparser_abs_dname_end {
         int i;
         parser->dname_size++;
@@ -156,8 +159,15 @@
             parser->dname_size * sizeof(uint8_t));
     }
     action zparser_dollar_origin {
+        parser->origin = parser->dname;
+        dname_print(stderr, parser->origin, parser->line);
+    }
+    # Actions: resource records.
+    action zparser_rr_end {
+        fprintf(stderr, "line %d: resource record\n", parser->line);
         dname_print(stderr, parser->dname, parser->line);
     }
+
 
     # Errors.
     action zerror_digit {
@@ -241,7 +251,7 @@
 
     label_escape = '\\' . (label_x | label_ddd);
 
-    label_char = ([^().\"\$\\] -- space -- comment) $zparser_label_char2wire;
+    label_char = ([^@().\"\$\\] -- space -- comment) $zparser_label_char2wire;
 
     label_character = (label_char | label_escape);
 
@@ -254,11 +264,24 @@
     labels = (label . '.')* . label;
 
     # RFC 1035: Domain names which do not end in a dot are called relative.
-    #rel_dname = labels;
+    rel_dname = labels                   >zparser_dname_start
+                                         %zparser_abs_dname_end;
 
     # RFC 1035: Domain names that end in a dot are called absolute.
     abs_dname = (labels? . '.')          >zparser_dname_start
                                          %zparser_abs_dname_end;
+
+    owner = abs_dname | rel_dname | ('@' $zparser_dname_origin);
+
+    # RFC 1035: <rr> contents take one of the following forms:
+    # [<TTL>] [<class>] <type> <RDATA>
+    # [<class>] [<TTL>] <type> <RDATA>
+    rr = owner . delim . "RRTODO"        %zparser_rr_end;
+                                         
+
+       #. delim
+       #. (( (class . delim)? . (ttl . delim)? ) | ( (ttl . delim)? . (class . delim)? ))
+       #. rrtype . rdata
 
 
     ## Main line parsing, entries, directives, records.
@@ -274,15 +297,26 @@
                                                   $!zerror_dollar_ttl;
 
     # RFC 1035: The following entries are defined:
-    # <blank>[<comment>]
-    # $ORIGIN <domain-name> [<comment>]
-    # RFC 2038: The Master File format is extended to include the following...L
-    # $TTL <TTL> [comment]
-    entry = (delim? | dollar_origin | dollar_ttl) . delim? . comment? . newline $!zerror_entry;
+    # delim?:        <blank>[<comment>]
+    # dollar_origin: $ORIGIN <domain-name> [<comment>]
+    # rr:            <domain-name><rr> [<comment>]
+    # RFC 2038: The Master File format is extended to include the following...
+    # dollar_ttl:    $TTL <TTL> [comment]
+    entry = (
+            delim? | rr | dollar_origin | dollar_ttl
+            )
+            . delim? . comment? . newline $!zerror_entry;
 
     line := [^\n]* newline @{ fgoto main; };
 
     # RFC 1035: The format of these files is a sequence of entries.
     main := entry*;
+
+
+    # TODO
+    # RFC 1035: $INCLUDE <file-name> [<domain-name>] [<comment>]
+    # RFC 1035: <blank><rr> [<comment>]
+    # RRtypes
+    # special region for dnames? 
 
 }%%
