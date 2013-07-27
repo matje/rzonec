@@ -32,12 +32,12 @@ aap
 
 $ORIGIN www.example.com.
 
-@ 				SOA	RDATA
-@ 			IN	A	RDATA
-@ 			IN 7200	NS	RDATA
-@ 			   300	MD	RDATA
-@ 			   300	MF	RDATA
-@ 			   300	CNAME	RDATA
+@ 				SOA	RDATA_SOA
+@ 			IN	A	RDATA_A
+@ 			IN 7200	NS	RDATA_NS
+@ 			   300	MD	RDATA_MD
+@ 			   300	MF	RDATA_MF
+@ 			   300	CNAME	RDATA_CNAME
 
 test			IN 7200	RDATA
 				RDATA

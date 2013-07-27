@@ -7,6 +7,7 @@
  *
  */
 
+
 %%{
     machine zparser;
 
@@ -233,6 +234,16 @@
         parser->totalerrors++;
         fhold; fgoto line;
     }
+    action zerror_rr {
+        fprintf(stderr, "[zparser] error: line %d: bad rr format\n", parser->line);
+        parser->totalerrors++;
+        fhold; fgoto line;
+    }
+    action zerror_rr_typedata {
+        fprintf(stderr, "[zparser] error: line %d: bad rr typedata\n", parser->line);
+        parser->totalerrors++;
+        fhold; fgoto line;
+    }
 
 
 
@@ -304,17 +315,24 @@
     rrttl = ttl . delim                  %zparser_rr_ttl;
 
     rrclass = "IN" . delim               %zparser_rr_class;
-
-    rrtype = "A"                         %{ parser->current_rr.type = DNS_TYPE_A; }
-           | "NS"                        %{ parser->current_rr.type = DNS_TYPE_NS; }
-           | "MD"                        %{ parser->current_rr.type = DNS_TYPE_MD; }
-           | "MF"                        %{ parser->current_rr.type = DNS_TYPE_MF; }
-           | "CNAME"                     %{ parser->current_rr.type = DNS_TYPE_CNAME; }
-           | "SOA"                       %{ parser->current_rr.type = DNS_TYPE_SOA; }
-           ;
-
-
     # We could parse CS, CH, HS, NONE, ANY and CLASS<%d>
+
+    # RDATAs
+    rdata_a          = delim . "RDATA_A";
+    rdata_ns         = delim . "RDATA_NS";
+    rdata_md         = delim . "RDATA_MD";
+    rdata_mf         = delim . "RDATA_MF";
+    rdata_cname      = delim . "RDATA_CNAME";
+    rdata_soa        = delim . "RDATA_SOA";
+
+    rrtype_and_rdata =
+        ( "A"          . rdata_a         >{ parser->current_rr.type = DNS_TYPE_A; }
+        | "NS"         . rdata_ns        >{ parser->current_rr.type = DNS_TYPE_NS; }
+        | "MD"         . rdata_md        >{ parser->current_rr.type = DNS_TYPE_MD; }
+        | "MF"         . rdata_mf        >{ parser->current_rr.type = DNS_TYPE_MF; }
+        | "CNAME"      . rdata_cname     >{ parser->current_rr.type = DNS_TYPE_CNAME; }
+        | "SOA"        . rdata_soa       >{ parser->current_rr.type = DNS_TYPE_SOA; }
+        )                                $!zerror_rr_typedata;
 
     # RFC 1035: <rr> contents take one of the following forms:
     # [<TTL>] [<class>] <type> <RDATA>
@@ -325,17 +343,10 @@
          |   ((rrttl %zparser_rr_ttl)? . rrclass?)
          | delim
            )
-         . rrtype
-         . delim
-         . "RDATA"
+         . rrtype_and_rdata
          )                               >zparser_rr_start
-                                         %zparser_rr_end;
-                                         
-
-       #. delim
-       #. (( (class . delim)? . (ttl . delim)? ) | ( (ttl . delim)? . (class . delim)? ))
-       #. rrtype . rdata
-
+                                         %zparser_rr_end
+                                         $!zerror_rr;
 
     ## Main line parsing, entries, directives, records.
 
@@ -366,5 +377,6 @@
     # RFC 1035: <blank><rr> [<comment>]
     # RRtypes
     # special region for dnames? 
+    # Unknown records
 
 }%%
