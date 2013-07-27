@@ -187,6 +187,7 @@
         dname_print(stderr, parser->current_rr.owner);
         fprintf(stderr, "\t%u", parser->current_rr.ttl);
         fprintf(stderr, "\tCLASS%d", parser->current_rr.klass);
+        fprintf(stderr, "\tTYPE%d", parser->current_rr.type);
         fprintf(stderr, "\n");
     }
 
@@ -303,6 +304,16 @@
     rrttl = ttl . delim                  %zparser_rr_ttl;
 
     rrclass = "IN" . delim               %zparser_rr_class;
+
+    rrtype = "A"                         %{ parser->current_rr.type = DNS_TYPE_A; }
+           | "NS"                        %{ parser->current_rr.type = DNS_TYPE_NS; }
+           | "MD"                        %{ parser->current_rr.type = DNS_TYPE_MD; }
+           | "MF"                        %{ parser->current_rr.type = DNS_TYPE_MF; }
+           | "CNAME"                     %{ parser->current_rr.type = DNS_TYPE_CNAME; }
+           | "SOA"                       %{ parser->current_rr.type = DNS_TYPE_SOA; }
+           ;
+
+
     # We could parse CS, CH, HS, NONE, ANY and CLASS<%d>
 
     # RFC 1035: <rr> contents take one of the following forms:
@@ -314,8 +325,8 @@
          |   ((rrttl %zparser_rr_ttl)? . rrclass?)
          | delim
            )
-         #. rrtype
-         #. delim
+         . rrtype
+         . delim
          . "RDATA"
          )                               >zparser_rr_start
                                          %zparser_rr_end;
