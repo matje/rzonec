@@ -87,10 +87,9 @@ int dname_str2wire(uint8_t* wire, const char* name);
  * Print domain name.
  * @param fd:    file descriptor.
  * @param dname: domain name.
- * @param line:  at which line in zone file.
  *
  */
-void dname_print(FILE* fd, dname_type* dname, unsigned int line);
+void dname_print(FILE* fd, dname_type* dname);
 
 /**
  * Is label normal (not a pointer or reserved)?

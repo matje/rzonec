@@ -298,7 +298,7 @@ dname_str2wire(uint8_t* wire, const char* str)
  * Print domain name.
  *
  */
-void dname_print(FILE* fd, dname_type* dname, unsigned int line)
+void dname_print(FILE* fd, dname_type* dname)
 {
     static char buf[DNAME_MAXLEN*5];
     size_t i;
@@ -316,7 +316,7 @@ void dname_print(FILE* fd, dname_type* dname, unsigned int line)
     }
     assert(dname->label_count > 0);
     if (dname->label_count == 1) {
-        fprintf(fd, "line %d: domain name .\n", line);
+        fprintf(fd, ".", line);
         return;
     }
     labels_to_convert = dname->label_count - 1;
@@ -342,6 +342,6 @@ void dname_print(FILE* fd, dname_type* dname, unsigned int line)
         *dst++ = '.';
     }
     *dst = '\0';
-    fprintf(fd, "line %d: domain name %s\n", line, buf);
+    fprintf(fd, "%s", line, buf);
     return;
 }

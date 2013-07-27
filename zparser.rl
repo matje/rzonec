@@ -160,12 +160,15 @@
     }
     action zparser_dollar_origin {
         parser->origin = parser->dname;
-        dname_print(stderr, parser->origin, parser->line);
+        fprintf(stderr, "line %d: origin ", parser->line);
+        dname_print(stderr, parser->origin);
+        fprintf(stderr, "\n");
     }
     # Actions: resource records.
     action zparser_rr_end {
-        fprintf(stderr, "line %d: resource record\n", parser->line);
-        dname_print(stderr, parser->dname, parser->line);
+        fprintf(stderr, "line %d: resource record ", parser->line);
+        dname_print(stderr, parser->dname);
+        fprintf(stderr, "\n");
     }
 
 
