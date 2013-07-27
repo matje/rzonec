@@ -316,7 +316,7 @@ void dname_print(FILE* fd, dname_type* dname)
     }
     assert(dname->label_count > 0);
     if (dname->label_count == 1) {
-        fprintf(fd, ".", line);
+        fprintf(fd, ".");
         return;
     }
     labels_to_convert = dname->label_count - 1;
@@ -342,6 +342,6 @@ void dname_print(FILE* fd, dname_type* dname)
         *dst++ = '.';
     }
     *dst = '\0';
-    fprintf(fd, "%s", line, buf);
+    fprintf(fd, "%s", buf);
     return;
 }
