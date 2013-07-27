@@ -165,6 +165,13 @@
         fprintf(stderr, "\n");
     }
     # Actions: resource records.
+    action zparser_rr_start {
+        parser->current_rr.owner = NULL;
+        parser->current_rr.ttl = parser->ttl;
+        parser->current_rr.klass = parser->klass;
+        parser->current_rr.type = 0;
+        parser->current_rr.rdlen = 0;
+    }
     action zparser_rr_owner {
         parser->current_rr.owner = parser->dname;
     }
@@ -293,14 +300,22 @@
     ttl = (decimal_number | time_value)  >zparser_ttl_start
                                          %zparser_ttl_end;
 
-    rrclass = "IN" . delim               >zparser_rr_class;
+    rrttl = ttl . delim                  %zparser_rr_ttl;
+
+    rrclass = "IN" . delim               %zparser_rr_class;
 
     # RFC 1035: <rr> contents take one of the following forms:
     # [<TTL>] [<class>] <type> <RDATA>
     # [<class>] [<TTL>] <type> <RDATA>
-    rr = owner                           %zparser_rr_owner
-       . ((rrclass? . ttl?) | (ttl? . rrclass?))
-       . delim . "RRTODO"                %zparser_rr_end;
+    rr = ( owner                         %zparser_rr_owner
+         . delim 
+         . ( (rrclass? . (rrttl %zparser_rr_ttl)?)
+         |   ((rrttl %zparser_rr_ttl)? . rrclass?)
+         | delim
+           )
+         . "RRTODO"
+         )                               >zparser_rr_start
+                                         %zparser_rr_end;
                                          
 
        #. delim

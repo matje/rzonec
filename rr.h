@@ -50,7 +50,7 @@ struct rr_struct {
     uint32_t ttl;
     uint16_t type;
     uint16_t klass;
-    uint16_t rdata_len;
+    uint16_t rdlen;
 };
 
 #endif /* _NLNETLABS_DNS_RR_H_ */

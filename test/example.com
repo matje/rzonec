@@ -32,10 +32,14 @@ aap
 
 $ORIGIN www.example.com.
 
-test			RRTODO
-			RRTODO
-pom.example.com.	RRTODO
-@			RRTODO
+@ 				RRTODO
+@ 			IN	RRTODO
+@ 			IN 7200	RRTODO
+@ 			   300	RRTODO
+
+test			IN 7200	RRTODO
+				RRTODO
+pom.example.com.  RRTODO 
 
 $TTL 3w12s
 

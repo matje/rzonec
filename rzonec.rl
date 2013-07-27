@@ -62,6 +62,7 @@ zparser_create()
     parser->rr_region = rrr;
     parser->origin = NULL;
     parser->ttl = DEFAULT_TTL;
+    parser->klass = DNS_CLASS_IN;
     parser->line = 0;
     parser->comments = 0;
     parser->numrrs = 0;
@@ -76,7 +77,7 @@ zparser_create()
     parser->current_rr.ttl = DEFAULT_TTL;
     parser->current_rr.type = 0;
     parser->current_rr.klass = DNS_CLASS_IN;
-    parser->current_rr.rdata_len = 0;
+    parser->current_rr.rdlen = 0;
     return;
 }
 

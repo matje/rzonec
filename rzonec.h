@@ -27,6 +27,7 @@ struct zparser {
     region_type* rr_region;   /* memory for resource records */
     dname_type* origin;       /* current origin */
     uint64_t ttl;             /* current ttl */
+    uint32_t klass;           /* zone class */
 
     unsigned int line;        /* number of lines */
     unsigned int comments;    /* number of comments */
