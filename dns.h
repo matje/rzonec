@@ -69,6 +69,7 @@ enum dns_rdata_format_enum {
 typedef enum dns_rdata_format_enum dns_rdata_format;
 
 #define DNS_RDATA_MAX 7
+#define DNS_RDLEN_MAX 65535
 
 /**
  * RR structure structure.

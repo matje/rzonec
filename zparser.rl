@@ -172,6 +172,7 @@
         parser->current_rr.klass = parser->klass;
         parser->current_rr.type = 0;
         parser->current_rr.rdlen = 0;
+        parser->current_rr.rdata = parser->tmp_rdata;
     }
     action zparser_rr_owner {
         parser->current_rr.owner = parser->dname;
@@ -241,6 +242,11 @@
     }
     action zerror_rr_typedata {
         fprintf(stderr, "[zparser] error: line %d: bad rr typedata\n", parser->line);
+        parser->totalerrors++;
+        fhold; fgoto line;
+    }
+    action zerror_rdata_ipv4 {
+        fprintf(stderr, "[zparser] error: line %d: bad IPv4 address\n", parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
@@ -318,9 +324,12 @@
     # We could parse CS, CH, HS, NONE, ANY and CLASS<%d>
 
     # RDATAs
-    rdata_ipv4       = "RDATA_A";
+    rdata_ipv4       = (digit {1,3}) . '.' . (digit {1,3}) . '.'
+                     . (digit {1,3}) . '.' . (digit {1,3})
+                     $!zerror_rdata_ipv4;
 
     rdata_a          = delim . rdata_ipv4;
+
     rdata_ns         = delim . "RDATA_NS";
     rdata_md         = delim . "RDATA_MD";
     rdata_mf         = delim . "RDATA_MF";
@@ -328,12 +337,12 @@
     rdata_soa        = delim . "RDATA_SOA";
 
     rrtype_and_rdata =
-        ( "A"          . rdata_a         >{ parser->current_rr.type = DNS_TYPE_A; }
-        | "NS"         . rdata_ns        >{ parser->current_rr.type = DNS_TYPE_NS; }
-        | "MD"         . rdata_md        >{ parser->current_rr.type = DNS_TYPE_MD; }
-        | "MF"         . rdata_mf        >{ parser->current_rr.type = DNS_TYPE_MF; }
-        | "CNAME"      . rdata_cname     >{ parser->current_rr.type = DNS_TYPE_CNAME; }
-        | "SOA"        . rdata_soa       >{ parser->current_rr.type = DNS_TYPE_SOA; }
+        ( "A"          . rdata_a         >{parser->current_rr.type = DNS_TYPE_A;}
+        | "NS"         . rdata_ns        >{parser->current_rr.type = DNS_TYPE_NS;}
+        | "MD"         . rdata_md        >{parser->current_rr.type = DNS_TYPE_MD;}
+        | "MF"         . rdata_mf        >{parser->current_rr.type = DNS_TYPE_MF;}
+        | "CNAME"      . rdata_cname     >{parser->current_rr.type = DNS_TYPE_CNAME;}
+        | "SOA"        . rdata_soa       >{parser->current_rr.type = DNS_TYPE_SOA;}
         )                                $!zerror_rr_typedata;
 
     # RFC 1035: <rr> contents take one of the following forms:

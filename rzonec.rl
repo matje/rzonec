@@ -55,9 +55,8 @@ zparser_create()
         return;
     }
     parser = (zparser_type*) region_alloc(r, sizeof(zparser_type));
-    if (!parser) {
-        return;
-    }
+    parser->tmp_rdata = (rdata_type*) region_alloc(r, DNS_RDATA_MAX *
+        sizeof(rdata_type));
     parser->region = r;
     parser->rr_region = rrr;
     parser->origin = NULL;
@@ -78,6 +77,7 @@ zparser_create()
     parser->current_rr.type = 0;
     parser->current_rr.klass = DNS_CLASS_IN;
     parser->current_rr.rdlen = 0;
+    parser->current_rr.rdata = parser->tmp_rdata;
     return;
 }
 

@@ -13,6 +13,7 @@
 #include <stdint.h>
 
 #include "dname.h"
+#include "dns.h"
 #include "region.h"
 #include "rr.h"
 
@@ -50,6 +51,7 @@ struct zparser {
 
     /* Temporary storage: resource records */
     rr_type current_rr;
+    rdata_type* tmp_rdata;
 };
 
 #endif /* RZONEC_H */
