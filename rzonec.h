@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef RZONEC_H
-#define RZONEC_H
+#ifndef _NLNETLABS_RZONEC_H_
+#define _NLNETLABS_RZONEC_H_
 
 #include <stdint.h>
 
@@ -16,6 +16,7 @@
 #include "dns.h"
 #include "region.h"
 #include "rr.h"
+#include "zonec.h"
 
 
 /**
@@ -58,5 +59,5 @@ struct zparser {
     rdata_type* tmp_rdata;
 };
 
-#endif /* RZONEC_H */
+#endif /* _NLNETLABS_RZONEC_H_ */
 
