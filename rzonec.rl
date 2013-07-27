@@ -40,18 +40,6 @@ static zparser_type* parser;
 
 
 /**
- * Process resource record
- *
- */
-static int
-process_rr(void)
-{
-    /* all fine */
-    return 1;
-}
-
-
-/**
  * Create parser.
  *
  */
@@ -129,6 +117,19 @@ rzonec_read_zone(const char* name, const char* file)
     close(fd);
     fflush(stdout);
     return;
+}
+
+
+/**
+ * Process resource record.
+ *
+ */
+int
+rzonec_process_rr(void)
+{
+    /* all fine */
+    parser->numrrs++;
+    return 1;
 }
 
 

@@ -165,10 +165,13 @@
         fprintf(stderr, "\n");
     }
     # Actions: resource records.
+    action zparser_rr_owner_end {
+        parser->current_rr.owner = parser->dname;
+    }
     action zparser_rr_end {
-        process_rr();
+        rzonec_process_rr();
         fprintf(stderr, "line %d: resource record ", parser->line);
-        dname_print(stderr, parser->dname);
+        dname_print(stderr, parser->current_rr.owner);
         fprintf(stderr, "\n");
     }
 
@@ -280,7 +283,8 @@
     # RFC 1035: <rr> contents take one of the following forms:
     # [<TTL>] [<class>] <type> <RDATA>
     # [<class>] [<TTL>] <type> <RDATA>
-    rr = owner . delim . "RRTODO"        %zparser_rr_end;
+    rr = owner                           %zparser_rr_owner_end
+       . delim . "RRTODO"                %zparser_rr_end;
                                          
 
        #. delim

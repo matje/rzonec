@@ -14,7 +14,7 @@
 
 #include "dname.h"
 #include "region.h"
-
+#include "rr.h"
 
 
 /**
@@ -23,10 +23,10 @@
  */
 typedef struct zparser zparser_type;
 struct zparser {
-    region_type* region;
-    region_type* rr_region;
-    dname_type* origin;
-    uint64_t ttl;
+    region_type* region;      /* global memory region */
+    region_type* rr_region;   /* memory for resource records */
+    dname_type* origin;       /* current origin */
+    uint64_t ttl;             /* current ttl */
 
     unsigned int line;        /* number of lines */
     unsigned int comments;    /* number of comments */
@@ -47,7 +47,7 @@ struct zparser {
     uint8_t label_count;
 
     /* Temporary storage: resource records */
-    /*rr_type current_rr; */
+    rr_type current_rr;
 };
 
 #endif /* RZONEC_H */
