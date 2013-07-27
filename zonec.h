@@ -12,6 +12,8 @@
 
 #include "region.h"
 
+#include <stdint.h>
+
 /**
  * Convert IPv4 address into RDATA element.
  * @param region: memory region.

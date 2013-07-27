@@ -200,14 +200,21 @@
         parser->rdbuf[parser->rdsize] = fc;
         parser->rdsize++;
     }
+
+    #TODO: check num rdatas
     action zparser_rdata_ipv4 {
         parser->rdbuf[parser->rdsize] = '\0';
         fprintf(stderr, "[zparser] line %d: rdata ipv4 %s\n", parser->line, parser->rdbuf);
 
-#        check num rdatas
-#        parser->current_rr.rdata[parser->current_rr.rdlen].data = 
-#            conv(buffer);
-#        parser->current_rr.rdlen++;
+        parser->current_rr.rdata[parser->current_rr.rdlen].data = 
+            zonec_rdata_ipv4(parser->rr_region, parser->rdbuf);
+        if (!parser->current_rr.rdata[parser->current_rr.rdlen].data) {
+            fprintf(stderr, "[zparser] error: line %d: bad IPv4 address '%s'\n",
+                parser->line, parser->rdbuf);
+            parser->totalerrors++;
+            fhold; fgoto line;
+        }
+        parser->current_rr.rdlen++;
     }
 
 
@@ -263,7 +270,7 @@
         fhold; fgoto line;
     }
     action zerror_rdata_ipv4 {
-        fprintf(stderr, "[zparser] error: line %d: bad IPv4 address\n", parser->line);
+        fprintf(stderr, "[zparser] error: line %d: bad IPv4 address format\n", parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
@@ -346,7 +353,7 @@
                      >zparser_rdata_start $zparser_rdata_char
                      %zparser_rdata_ipv4  $!zerror_rdata_ipv4;
 
-    rdata_a          = delim . rdata_ipv4 %zparser_rdata_conv_ipv4;
+    rdata_a          = delim . rdata_ipv4 %zparser_rdata_ipv4;
 
     rdata_ns         = delim . "RDATA_NS";
     rdata_md         = delim . "RDATA_MD";

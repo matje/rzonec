@@ -10,6 +10,7 @@
 #include "zonec.h"
 
 #include <arpa/inet.h>
+#include <stdio.h>
 #include <string.h>
 
 static const char* logstr = "zonec";
@@ -39,7 +40,7 @@ zonec_rdata_ipv4(region_type* region, const char* buf)
     in_addr_t address;
     uint16_t *r = NULL;
     if (inet_pton(AF_INET, buf, &address) != 1) {
-        fprintf(stderr, "[%s] invalid IPv4 address '%s'", buf);
+        fprintf(stderr, "[%s] invalid IPv4 address '%s'\n", logstr, buf);
     } else {
         r = zonec_rdata_init(region, &address, sizeof(address));
     }
