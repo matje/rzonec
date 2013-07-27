@@ -36,6 +36,7 @@
 
 #include "dname.h"
 #include "dns.h"
+#include "rdata.h"
 #include "region.h"
 
 
@@ -46,7 +47,7 @@
 typedef struct rr_struct rr_type;
 struct rr_struct {
     dname_type* owner; /* TODO: pointer to domain node */
-    /* TODO: pointer to RDATA */
+    rdata_type* rdata;
     uint32_t ttl;
     uint16_t type;
     uint16_t klass;

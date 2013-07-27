@@ -60,10 +60,10 @@
  * The different types of RDATA wireformat data.
  */
 enum dns_rdata_format_enum {
-    DNS_RDATA_A,                  /* 32-bit IPv4 address. */
+    DNS_RDATA_IPV4,               /* 32-bit IPv4 address. */
     DNS_RDATA_COMPRESSED_DNAME,   /* Possibly compressed domain name. */
     DNS_RDATA_UNCOMPRESSED_DNAME, /* Uncompressed domain name. */
-    DNS_RDATA_LONG,               /* 32-bit integer. */
+    DNS_RDATA_INT32,              /* 32-bit integer. */
     DNS_RDATA_BINARY              /* Binary data (unknown length). */
 };
 typedef enum dns_rdata_format_enum dns_rdata_format;

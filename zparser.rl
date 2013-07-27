@@ -318,7 +318,9 @@
     # We could parse CS, CH, HS, NONE, ANY and CLASS<%d>
 
     # RDATAs
-    rdata_a          = delim . "RDATA_A";
+    rdata_ipv4       = "RDATA_A";
+
+    rdata_a          = delim . rdata_ipv4;
     rdata_ns         = delim . "RDATA_NS";
     rdata_md         = delim . "RDATA_MD";
     rdata_mf         = delim . "RDATA_MF";
