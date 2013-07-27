@@ -34,11 +34,45 @@
 #include "region.h"
 
 #include <assert.h>
+#include <errno.h>
 #include <malloc.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 static const char* logstr = "region";
+
+
+/**
+ * Wrapper around malloc, checks return value.
+ *
+ */
+static void*
+rmalloc(size_t size)
+{
+    void* s = malloc(size);
+    if (!s) {
+        fprintf(stderr, "[%s] malloc failed: %s", logstr, strerror(errno));
+        exit(1);
+    }
+    return s;
+}
+
+
+/**
+ * Wrapper around calloc, checks return value.
+ *
+ */
+static void*
+rcalloc(size_t nmemb, size_t size)
+{
+    void* s = calloc(nmemb, size);
+    if (!s) {
+        fprintf(stderr, "[%s] malloc failed: %s", logstr, strerror(errno));
+        exit(1);
+    }
+    return s;
+}
 
 
 /**
@@ -59,7 +93,7 @@ region_init(region_type* r)
     r->chunk_count = 1;
     r->cleanup_count = 0;
     r->cleanup_max = DEFAULT_INITIAL_CLEANUP;
-    r->cleanups = (cleanup_type*) calloc(r->cleanup_max,
+    r->cleanups = (cleanup_type*) rcalloc(r->cleanup_max,
         sizeof(cleanup_type));
     return;
 }
@@ -72,27 +106,13 @@ region_init(region_type* r)
 static region_type*
 region_create_custom(size_t size)
 {
-    region_type* r = (region_type*) malloc(size);
+    region_type* r = (region_type*) rmalloc(size);
     assert(sizeof(region_type) <= size);
-    if (!r) {
-        fprintf(stderr, "[%s] malloc failed: insufficient memory", logstr);
-        return NULL;
-    }
     r->chunk_size = size;
     region_init(r);
-    if (!r->cleanups) {
-        fprintf(stderr, "[%s] calloc failed: insufficient memory", logstr);
-        region_cleanup(r);
-        return NULL;
-    }
     r->recyclebin_size = 0;
-    r->recyclebin = malloc(sizeof(recycle_type*) *
+    r->recyclebin = rmalloc(sizeof(recycle_type*) *
         (REGION_LARGE_OBJECT_SIZE / ALIGNMENT) );
-    if (!r->recyclebin) {
-        fprintf(stderr, "[%s] calloc failed: insufficient memory", logstr);
-        region_cleanup(r);
-        return NULL;
-    }
     memset(r->recyclebin, 0, sizeof(recycle_type*) *
         (REGION_LARGE_OBJECT_SIZE / ALIGNMENT) );
     return r;
@@ -120,12 +140,8 @@ region_add_cleanup(region_type* r, void* data)
     assert(r);
     assert(data);
     if (r->cleanup_count >= r->cleanup_max) {
-        cleanup_type* cleanups = (cleanup_type*) calloc(r->cleanup_max * 2,
+        cleanup_type* cleanups = (cleanup_type*) rcalloc(r->cleanup_max * 2,
             sizeof(cleanup_type));
-        if (!cleanups) {
-            fprintf(stderr, "[%s] calloc failed: insufficient memory", logstr);
-            return 0;
-        }
         memcpy(cleanups, r->cleanups, r->cleanup_count * sizeof(cleanup_type));
         free(r->cleanups);
         r->cleanups = cleanups;
@@ -149,11 +165,7 @@ region_alloc(region_type* r, size_t size)
     void* s;
     /* large objects */
     if (a >= REGION_LARGE_OBJECT_SIZE) {
-        s = malloc(ALIGNMENT+size);
-        if (!s) {
-            fprintf(stderr, "[%s] malloc failed: insufficient memory", logstr);
-            return NULL;
-        }
+        s = rmalloc(ALIGNMENT+size);
         /* add cleanup */
         if (!region_add_cleanup(r, s)) {
             fprintf(stderr, "[%s] add cleanup failed", logstr);
@@ -175,11 +187,7 @@ region_alloc(region_type* r, size_t size)
     }
     /* do we need a new chunk? */
     if (a > r->available) {
-        s = malloc(REGION_CHUNK_SIZE);
-        if (!s) {
-            fprintf(stderr, "[%s] malloc failed: insufficient memory", logstr);
-            return NULL;
-        }
+        s = rmalloc(REGION_CHUNK_SIZE);
         ++r->chunk_count;
         *(char**)s = r->next;
         r->next = (char*)s;
