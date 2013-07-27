@@ -62,7 +62,8 @@
     }
     action zparser_dollar_ttl {
         parser->ttl = parser->number;
-        fprintf(stderr, "[zparser] line %d: ttl %u\n", parser->line, (unsigned int) parser->ttl);
+        fprintf(stderr, "[zparser] line %d: ttl %u\n", parser->line,
+            (unsigned int) parser->ttl);
     }
 
     # Actions: labels and domain names.
@@ -75,7 +76,8 @@
             parser->dname_wire[parser->dname_size] = fc;
             parser->dname_size++;
         } else {
-            fprintf(stderr, "[zparser] error: line %d: domain name overflow\n", parser->line);
+            fprintf(stderr, "[zparser] error: line %d: domain name overflow\n",
+                parser->line);
             parser->totalerrors++;
             fhold; fgoto line;
         }
@@ -85,7 +87,8 @@
             parser->dname_wire[parser->dname_size] = 0;
             parser->dname_size++;
         } else {
-            fprintf(stderr, "[zparser] error: line %d: domain name overflow\n", parser->line);
+            fprintf(stderr, "[zparser] error: line %d: domain name overflow\n",
+                parser->line);
             parser->totalerrors++;
             fhold; fgoto line;
         }
@@ -117,7 +120,8 @@
         if (parser->dname_size < DNAME_MAXLEN) {
             parser->dname_wire[parser->dname_size] = 0;
         } else {
-            fprintf(stderr, "[zparser] line %d: domain name overflow\n", parser->line);
+            fprintf(stderr, "[zparser] line %d: domain name overflow\n",
+                parser->line);
             parser->totalerrors++;
             fhold; fgoto line;
         }
@@ -148,7 +152,8 @@
             (sizeof(dname_type) +
             (parser->label_count + parser->dname_size) * sizeof(uint8_t)));
         if (!parser->dname) {
-            fprintf(stderr, "[zparser] line %d: domain create failed\n", parser->line);
+            fprintf(stderr, "[zparser] line %d: domain create failed\n",
+                parser->line);
             parser->totalerrors++;
             fhold; fgoto line;
         }
@@ -204,7 +209,8 @@
     #TODO: check num rdatas
     action zparser_rdata_ipv4 {
         parser->rdbuf[parser->rdsize] = '\0';
-        fprintf(stderr, "[zparser] line %d: rdata ipv4 %s\n", parser->line, parser->rdbuf);
+        fprintf(stderr, "[zparser] line %d: rdata ipv4 %s\n", parser->line,
+            parser->rdbuf);
 
         parser->current_rr.rdata[parser->current_rr.rdlen].data = 
             zonec_rdata_ipv4(parser->rr_region, parser->rdbuf);
@@ -220,7 +226,8 @@
 
     # Errors.
     action zerror_digit {
-        fprintf(stderr, "[zparser] error: line %d: not a digit: %c\n", parser->line, fc);
+        fprintf(stderr, "[zparser] error: line %d: not a digit: %c\n",
+            parser->line, fc);
         parser->number = 0;
         fhold; fgoto line;
     }
@@ -230,47 +237,56 @@
         fhold; fgoto line;
     }
     action zerror_dollar_origin {
-        fprintf(stderr, "[zparser] error: line %d: bad origin directive\n", parser->line);
+        fprintf(stderr, "[zparser] error: line %d: bad origin directive\n",
+            parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_dollar_ttl {
-        fprintf(stderr, "[zparser] error: line %d: bad ttl directive\n", parser->line);
+        fprintf(stderr, "[zparser] error: line %d: bad ttl directive\n",
+            parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_label_ddd {
-        fprintf(stderr, "[zparser] error: line %d: bad octet in label\n", parser->line);
+        fprintf(stderr, "[zparser] error: line %d: bad octet in label\n",
+            parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_label_x {
-        fprintf(stderr, "[zparser] error: line %d: bad escape in label\n", parser->line);
+        fprintf(stderr, "[zparser] error: line %d: bad escape in label\n",
+            parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_label_overflow {
-        fprintf(stderr, "[zparser] error: line %d: label overflow\n", parser->line);
+        fprintf(stderr, "[zparser] error: line %d: label overflow\n",
+            parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_timeformat {
-        fprintf(stderr, "[zparser] error: line %d: ttl time format error\n", parser->line);
+        fprintf(stderr, "[zparser] error: line %d: ttl time format error\n",
+            parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_rr {
-        fprintf(stderr, "[zparser] error: line %d: bad rr format\n", parser->line);
+        fprintf(stderr, "[zparser] error: line %d: bad rr format\n",
+            parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_rr_typedata {
-        fprintf(stderr, "[zparser] error: line %d: bad rr typedata\n", parser->line);
+        fprintf(stderr, "[zparser] error: line %d: bad rr typedata\n",
+            parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_rdata_ipv4 {
-        fprintf(stderr, "[zparser] error: line %d: bad IPv4 address format\n", parser->line);
+        fprintf(stderr, "[zparser] error: line %d: bad IPv4 address format\n",
+            parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
