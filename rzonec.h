@@ -36,6 +36,10 @@ struct zparser {
     unsigned int numrrs;      /* number of rrs */
     unsigned int totalerrors; /* number of errors */
 
+    /* Temporary storage: rdata */
+    size_t rdsize;
+    char rdbuf[DNS_RDLEN_MAX];
+
     /* Temporary storage: numbers */
     uint64_t number;
     uint64_t seconds;

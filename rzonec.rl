@@ -66,6 +66,7 @@ zparser_create()
     parser->comments = 0;
     parser->numrrs = 0;
     parser->totalerrors = 0;
+    parser->rdsize = 0;
     parser->number = 0;
     parser->seconds = 0;
     parser->dname = NULL;
@@ -73,6 +74,7 @@ zparser_create()
     parser->dname_size = 0;
     parser->label_head = 0;
     parser->label_count = 0;
+    /* resource records */
     parser->current_rr.ttl = DEFAULT_TTL;
     parser->current_rr.type = 0;
     parser->current_rr.klass = DNS_CLASS_IN;

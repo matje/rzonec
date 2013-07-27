@@ -192,6 +192,18 @@
         fprintf(stderr, "\tTYPE%d", parser->current_rr.type);
         fprintf(stderr, "\n");
     }
+    action zparser_rdata_start {
+        bzero(&parser->rdbuf[0], DNS_RDLEN_MAX);
+        parser->rdsize = 0;
+    }
+    action zparser_rdata_char {
+        parser->rdbuf[parser->rdsize] = fc;
+        parser->rdsize++;
+    }
+    action zparser_rdata_end {
+        parser->rdbuf[parser->rdsize] = '\0';
+        fprintf(stderr, "[zparser] line %d: rdata %s\n", parser->line, parser->rdbuf);
+    }
 
 
     # Errors.
@@ -324,8 +336,11 @@
     # We could parse CS, CH, HS, NONE, ANY and CLASS<%d>
 
     # RDATAs
-    rdata_ipv4       = (digit {1,3}) . '.' . (digit {1,3}) . '.'
-                     . (digit {1,3}) . '.' . (digit {1,3})
+    rdata_ipv4       = ((digit {1,3}) . '.' . (digit {1,3}) . '.'
+                     . (digit {1,3}) . '.' . (digit {1,3}))
+                     >zparser_rdata_start
+                     $zparser_rdata_char
+                     %zparser_rdata_end
                      $!zerror_rdata_ipv4;
 
     rdata_a          = delim . rdata_ipv4;
@@ -338,11 +353,11 @@
 
     rrtype_and_rdata =
         ( "A"          . rdata_a         >{parser->current_rr.type = DNS_TYPE_A;}
-        | "NS"         . rdata_ns        >{parser->current_rr.type = DNS_TYPE_NS;}
-        | "MD"         . rdata_md        >{parser->current_rr.type = DNS_TYPE_MD;}
-        | "MF"         . rdata_mf        >{parser->current_rr.type = DNS_TYPE_MF;}
-        | "CNAME"      . rdata_cname     >{parser->current_rr.type = DNS_TYPE_CNAME;}
-        | "SOA"        . rdata_soa       >{parser->current_rr.type = DNS_TYPE_SOA;}
+#        | "NS"         . rdata_ns        >{parser->current_rr.type = DNS_TYPE_NS;}
+#        | "MD"         . rdata_md        >{parser->current_rr.type = DNS_TYPE_MD;}
+#        | "MF"         . rdata_mf        >{parser->current_rr.type = DNS_TYPE_MF;}
+#        | "CNAME"      . rdata_cname     >{parser->current_rr.type = DNS_TYPE_CNAME;}
+#        | "SOA"        . rdata_soa       >{parser->current_rr.type = DNS_TYPE_SOA;}
         )                                $!zerror_rr_typedata;
 
     # RFC 1035: <rr> contents take one of the following forms:
