@@ -8,6 +8,7 @@
  */
 
 #include "dname.h"
+#include "dns.h"
 #include "rzonec.h"
 
 #include <assert.h>
@@ -24,6 +25,8 @@
 #define DEFAULT_TTL 3600
 
 static zparser_type* parser;
+
+static const char* logstr = "rzonec";
 
 
 /**
@@ -70,6 +73,10 @@ zparser_create()
     parser->dname_size = 0;
     parser->label_head = 0;
     parser->label_count = 0;
+    parser->current_rr.ttl = DEFAULT_TTL;
+    parser->current_rr.type = 0;
+    parser->current_rr.klass = DNS_CLASS_IN;
+    parser->current_rr.rdata_len = 0;
     return;
 }
 
@@ -98,12 +105,12 @@ rzonec_read_zone(const char* name, const char* file)
     ssize_t r;
     int fd = open(file, O_RDONLY);
     if (fd == -1) {
-        fprintf(stderr, "rzonec: cannot open file %s: %s\n", file,
+        fprintf(stderr, "[%s] cannot open file %s: %s\n", logstr, file,
             strerror(errno));
         return;
     }
     r = read(fd, buf, MAX_BUFSIZE);
-    fprintf(stdout, "rzonec: read %lu bytes.\n", r);
+    fprintf(stdout, "[%s] read %lu bytes.\n", logstr, r);
     if (r > 0) {
         int cs = 0;
         int res = 0;
@@ -127,6 +134,13 @@ rzonec_read_zone(const char* name, const char* file)
 int
 rzonec_process_rr(void)
 {
+    /* supported CLASS */
+    if (parser->current_rr.klass != DNS_CLASS_IN) {
+        fprintf(stderr, "[%s] only class IN is supported\n", logstr);
+        return 0;
+    }
+
+
     /* all fine */
     parser->numrrs++;
     return 1;
@@ -193,44 +207,45 @@ main(int argc, char **argv)
         exit(1);
     }
     if (!zonefile || !dbfile || !origin) {
-        fprintf(stderr, "rzonec: missing arguments: %s%s%s\n",
+        fprintf(stderr, "[%s] missing arguments: %s%s%s\n", logstr,
             zonefile?"":"zonefile ", dbfile?"":"dbfile ", origin?"":"origin");
         exit(1);
     }
     /* Create the database */
 /*
     if ((db = namedb_create(dbfile)) == NULL) {
-        fprintf(stderr, "rzonec: error creating the database (%s)\n", dbfile);
+        fprintf(stderr, "[%s] error creating the database (%s)\n", logstr,
+            dbfile);
         exit(1);
     }
 */
     /* Create the parser */
     zparser_create();
     if (!parser) {
-        fprintf(stderr, "rzonec: error creating the parser\n");
+        fprintf(stderr, "[%s] error creating the parser\n", logstr);
         exit(1);
     }
 
     /*
      * Read zone file with the specified origin
      */
-    fprintf(stdout, "rzonec: reading zone %s file %s db %s.\n", origin,
+    fprintf(stdout, "[%s] reading zone %s file %s db %s.\n", logstr, origin,
         zonefile, dbfile);
     parser->line = 1;
     rzonec_read_zone(origin, zonefile);
     ret = parser->totalerrors;
 
-    fprintf(stdout, "rzonec: read %d lines in zone %s.\n",
-        parser->line, origin);
-    fprintf(stdout, "rzonec: encountered %d comments in zone %s.\n",
+    fprintf(stdout, "[%s] read %d lines in zone %s.\n", logstr, parser->line,
+        origin);
+    fprintf(stdout, "[%s] encountered %d comments in zone %s.\n", logstr,
         parser->comments, origin);
-    fprintf(stdout, "rzonec: processed %d RRs in zone %s.\n",
+    fprintf(stdout, "[%s] processed %d RRs in zone %s.\n", logstr,
         parser->numrrs, origin);
 
     /* Close the database */
 /*
     if (namedb_save(db) != 0) {
-        fprintf(stderr, "rzonec: error writing the database (%s)\n",
+        fprintf(stderr, "[%s] error writing the database (%s)\n", logstr,
             db->filename);
         namedb_cleanup(db);
         exit(1);
@@ -245,9 +260,9 @@ main(int argc, char **argv)
 
     /* Print the total number of errors */
     if (ret > 0) {
-        fprintf(stderr, "rzonec: done with %d errors.\n", ret);
+        fprintf(stderr, "[%s] done with %d errors.\n", logstr, ret);
     } else {
-        fprintf(stdout, "rzonec: done with no errors.\n");
+        fprintf(stdout, "[%s] done with no errors.\n", logstr);
     }
     return ret;
 }

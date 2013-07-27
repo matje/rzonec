@@ -61,7 +61,7 @@
     }
     action zparser_dollar_ttl {
         parser->ttl = parser->number;
-        fprintf(stderr, "line %d: ttl %u\n", parser->line, (unsigned int) parser->ttl);
+        fprintf(stderr, "[zparser] line %d: ttl %u\n", parser->line, (unsigned int) parser->ttl);
     }
 
     # Actions: labels and domain names.
@@ -74,7 +74,7 @@
             parser->dname_wire[parser->dname_size] = fc;
             parser->dname_size++;
         } else {
-            fprintf(stderr, "error: line %d: domain name overflow\n", parser->line);
+            fprintf(stderr, "[zparser] error: line %d: domain name overflow\n", parser->line);
             parser->totalerrors++;
             fhold; fgoto line;
         }
@@ -84,7 +84,7 @@
             parser->dname_wire[parser->dname_size] = 0;
             parser->dname_size++;
         } else {
-            fprintf(stderr, "error: line %d: domain name overflow\n", parser->line);
+            fprintf(stderr, "[zparser] error: line %d: domain name overflow\n", parser->line);
             parser->totalerrors++;
             fhold; fgoto line;
         }
@@ -116,13 +116,13 @@
         if (parser->dname_size < DNAME_MAXLEN) {
             parser->dname_wire[parser->dname_size] = 0;
         } else {
-            fprintf(stderr, "line %d: domain name overflow\n", parser->line);
+            fprintf(stderr, "[zparser] line %d: domain name overflow\n", parser->line);
             parser->totalerrors++;
             fhold; fgoto line;
         }
         while (1) {
             if (label_is_pointer(parser->label)) {
-                fprintf(stderr, "line %d: domain has pointer label\n",
+                fprintf(stderr, "[zparser] line %d: domain has pointer label\n",
                     parser->line);
                 parser->totalerrors++;
                 fhold; fgoto line;
@@ -147,7 +147,7 @@
             (sizeof(dname_type) +
             (parser->label_count + parser->dname_size) * sizeof(uint8_t)));
         if (!parser->dname) {
-            fprintf(stderr, "line %d: domain create failed\n", parser->line);
+            fprintf(stderr, "[zparser] line %d: domain create failed\n", parser->line);
             parser->totalerrors++;
             fhold; fgoto line;
         }
@@ -160,60 +160,68 @@
     }
     action zparser_dollar_origin {
         parser->origin = parser->dname;
-        fprintf(stderr, "line %d: origin ", parser->line);
+        fprintf(stderr, "[zparser] line %d: origin ", parser->line);
         dname_print(stderr, parser->origin);
         fprintf(stderr, "\n");
     }
     # Actions: resource records.
-    action zparser_rr_owner_end {
+    action zparser_rr_owner {
         parser->current_rr.owner = parser->dname;
+    }
+    action zparser_rr_class {
+        parser->current_rr.klass = DNS_CLASS_IN;
+    }
+    action zparser_rr_ttl {
+        parser->current_rr.ttl = parser->number;
     }
     action zparser_rr_end {
         rzonec_process_rr();
-        fprintf(stderr, "line %d: resource record ", parser->line);
+        fprintf(stderr, "[zparser] line %d: resource record ", parser->line);
         dname_print(stderr, parser->current_rr.owner);
+        fprintf(stderr, "\t%u", parser->current_rr.ttl);
+        fprintf(stderr, "\tCLASS%d", parser->current_rr.klass);
         fprintf(stderr, "\n");
     }
 
 
     # Errors.
     action zerror_digit {
-        fprintf(stderr, "error: line %d: not a digit: %c\n", parser->line, fc);
+        fprintf(stderr, "[zparser] error: line %d: not a digit: %c\n", parser->line, fc);
         parser->number = 0;
         fhold; fgoto line;
     }
     action zerror_entry {
-        fprintf(stderr, "error: line %d: bad entry\n", parser->line);
+        fprintf(stderr, "[zparser] error: line %d: bad entry\n", parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_dollar_origin {
-        fprintf(stderr, "error: line %d: bad origin directive\n", parser->line);
+        fprintf(stderr, "[zparser] error: line %d: bad origin directive\n", parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_dollar_ttl {
-        fprintf(stderr, "error: line %d: bad ttl directive\n", parser->line);
+        fprintf(stderr, "[zparser] error: line %d: bad ttl directive\n", parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_label_ddd {
-        fprintf(stderr, "error: line %d: bad octet in label\n", parser->line);
+        fprintf(stderr, "[zparser] error: line %d: bad octet in label\n", parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_label_x {
-        fprintf(stderr, "error: line %d: bad escape in label\n", parser->line);
+        fprintf(stderr, "[zparser] error: line %d: bad escape in label\n", parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_label_overflow {
-        fprintf(stderr, "error: line %d: label overflow\n", parser->line);
+        fprintf(stderr, "[zparser] error: line %d: label overflow\n", parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
     action zerror_timeformat {
-        fprintf(stderr, "error: line %d: ttl time format error\n", parser->line);
+        fprintf(stderr, "[zparser] error: line %d: ttl time format error\n", parser->line);
         parser->totalerrors++;
         fhold; fgoto line;
     }
@@ -280,10 +288,18 @@
 
     owner = abs_dname | rel_dname | ('@' $zparser_dname_origin);
 
+    # RFC 1035: TTL is a decimal integer
+    # The $TTL field may take any time value.
+    ttl = (decimal_number | time_value)  >zparser_ttl_start
+                                         %zparser_ttl_end;
+
+    rrclass = "IN" . delim               >zparser_rr_class;
+
     # RFC 1035: <rr> contents take one of the following forms:
     # [<TTL>] [<class>] <type> <RDATA>
     # [<class>] [<TTL>] <type> <RDATA>
-    rr = owner                           %zparser_rr_owner_end
+    rr = owner                           %zparser_rr_owner
+       . ((rrclass? . ttl?) | (ttl? . rrclass?))
        . delim . "RRTODO"                %zparser_rr_end;
                                          
 
@@ -293,11 +309,6 @@
 
 
     ## Main line parsing, entries, directives, records.
-
-    # RFC 1035: TTL is a decimal integer
-    # The $TTL field may take any time value.
-    ttl = (decimal_number | time_value)  >zparser_ttl_start
-                                         %zparser_ttl_end;
 
     dollar_origin = "$ORIGIN" . delim . abs_dname %zparser_dollar_origin
                                                   $!zerror_dollar_origin;
