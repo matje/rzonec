@@ -303,6 +303,7 @@
     rrttl = ttl . delim                  %zparser_rr_ttl;
 
     rrclass = "IN" . delim               %zparser_rr_class;
+    # We could parse CS, CH, HS, NONE, ANY and CLASS<%d>
 
     # RFC 1035: <rr> contents take one of the following forms:
     # [<TTL>] [<class>] <type> <RDATA>
@@ -313,7 +314,9 @@
          |   ((rrttl %zparser_rr_ttl)? . rrclass?)
          | delim
            )
-         . "RRTODO"
+         #. rrtype
+         #. delim
+         . "RDATA"
          )                               >zparser_rr_start
                                          %zparser_rr_end;
                                          
