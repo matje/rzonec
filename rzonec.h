@@ -26,6 +26,7 @@ struct zparser {
     region_type* region;      /* global memory region */
     region_type* rr_region;   /* memory for resource records */
     dname_type* origin;       /* current origin */
+    /* We could handle ttl as a duration */
     uint64_t ttl;             /* current ttl */
     uint32_t klass;           /* zone class */
 
