@@ -200,9 +200,14 @@
         parser->rdbuf[parser->rdsize] = fc;
         parser->rdsize++;
     }
-    action zparser_rdata_end {
+    action zparser_rdata_ipv4 {
         parser->rdbuf[parser->rdsize] = '\0';
-        fprintf(stderr, "[zparser] line %d: rdata %s\n", parser->line, parser->rdbuf);
+        fprintf(stderr, "[zparser] line %d: rdata ipv4 %s\n", parser->line, parser->rdbuf);
+
+#        check num rdatas
+#        parser->current_rr.rdata[parser->current_rr.rdlen].data = 
+#            conv(buffer);
+#        parser->current_rr.rdlen++;
     }
 
 
@@ -337,13 +342,11 @@
 
     # RDATAs
     rdata_ipv4       = ((digit {1,3}) . '.' . (digit {1,3}) . '.'
-                     . (digit {1,3}) . '.' . (digit {1,3}))
-                     >zparser_rdata_start
-                     $zparser_rdata_char
-                     %zparser_rdata_end
-                     $!zerror_rdata_ipv4;
+                     .  (digit {1,3}) . '.' . (digit {1,3}))
+                     >zparser_rdata_start $zparser_rdata_char
+                     %zparser_rdata_ipv4  $!zerror_rdata_ipv4;
 
-    rdata_a          = delim . rdata_ipv4;
+    rdata_a          = delim . rdata_ipv4 %zparser_rdata_conv_ipv4;
 
     rdata_ns         = delim . "RDATA_NS";
     rdata_md         = delim . "RDATA_MD";

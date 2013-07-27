@@ -36,6 +36,9 @@ $ORIGIN www.example.com.
 @ 			IN	A	1.2.3.4
 @ 			IN	A	213.154.224.1
 @ 			IN	A	666.666.666.666
+@ 			IN	A	1337.133.337.137
+@ 			IN	A	1.2.3.4.5
+@ 			IN	A	1.2.3
 @ 			IN 7200	NS	RDATA_NS
 @ 			   300	MD	RDATA_MD
 @ 			   300	MF	RDATA_MF
