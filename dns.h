@@ -34,6 +34,9 @@
 #ifndef _NLNETLABS_DNS_DNS_H_
 #define _NLNETLABS_DNS_DNS_H_
 
+#include <stdint.h>
+#include <string.h>
+
 /** CLASS */
 #define DNS_CLASS_IN     1 /* RFC 1035: Internet class */
 #define DNS_CLASS_CS     2 /* RFC 1035: CS class */
@@ -49,6 +52,52 @@
 #define DNS_TYPE_MF      4 /* RFC 1035: a mail forwarder (Obsolete - use MX) */
 #define DNS_TYPE_CNAME   5 /* RFC 1035: the canonical name for an alias */
 #define DNS_TYPE_SOA     6 /* RFC 1035: marks the start of authority of a zone */
+
+#define DNS_NUMRRTYPES   DNS_TYPE_SOA+1 /* +1 for TYPE0 */
+
+/** RDATA */
+/*
+ * The different types of RDATA wireformat data.
+ */
+enum dns_rdata_format_enum {
+    DNS_RDATA_A,                  /* 32-bit IPv4 address. */
+    DNS_RDATA_COMPRESSED_DNAME,   /* Possibly compressed domain name. */
+    DNS_RDATA_UNCOMPRESSED_DNAME, /* Uncompressed domain name. */
+    DNS_RDATA_LONG,               /* 32-bit integer. */
+    DNS_RDATA_BINARY              /* Binary data (unknown length). */
+};
+typedef enum dns_rdata_format_enum dns_rdata_format;
+
+#define DNS_RDATA_MAX 7
+
+/**
+ * RR structure structure.
+ *
+ */
+typedef struct rrstruct_struct rrstruct_type;
+struct rrstruct_struct {
+    const char* name; /* Textual name */
+    uint16_t type; /* RRtype */
+    uint8_t minimum; /* Minimum number of RDATAs */
+    uint8_t maximum; /* Maximum number of RDATAs */
+    uint8_t rdata[DNS_RDATA_MAX]; /* RDATAs */
+};
+
+/**
+ * Get RR structure by name.
+ * @param name: name.
+ * @return:     (rrstruct_type*) RR structure.
+ *
+ */
+rrstruct_type* dns_rrstruct_by_name(const char *name);
+
+/**
+ * Get RR structure by type.
+ * @param type: type.
+ * @returnL     (rrstruct_type*) RR structure.
+ *
+ */
+rrstruct_type* dns_rrstruct_by_type(uint16_t type);
 
 #endif /* _NLNETLABS_DNS_DNS_H_ */
 
