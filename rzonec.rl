@@ -235,6 +235,10 @@ main(int argc, char **argv)
         exit(1);
     }
 */
+
+    region_log(parser->region, "global region");
+    region_log(parser->rr_region, "rr region");
+
     /* Cleanup the parser */
     zparser_cleanup();
 

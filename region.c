@@ -355,7 +355,7 @@ region_log(region_type* r, const char* str)
     chunks = count_chunks(r);
     large = count_large(r);
     fprintf(stdout, "[%s] %s: small %lu, chunks %lu, large %lu, cleanup %lu, "
-        "recycle %lu, size %lu", logstr, str?str:"-",
+        "recycle %lu, size %lu\n", logstr, str?str:"-",
         r->small_objects,
         r->chunk_count,
         r->large_objects,
@@ -363,11 +363,11 @@ region_log(region_type* r, const char* str)
         r->recyclebin_size,
         region_size(r));
     if (chunks != r->chunk_count) {
-        fprintf(stderr, "[%s] %s: chunk count mismatch (%lu vs. %lu)", logstr,
+        fprintf(stderr, "[%s] %s: chunk count mismatch (%lu vs. %lu)\n", logstr,
             str?str:"-", chunks, r->chunk_count);
     }
     if (large != r->large_objects) {
-        fprintf(stderr, "[%s] %s: large object count mismatch (%lu vs. %lu)",
+        fprintf(stderr, "[%s] %s: large object count mismatch (%lu vs. %lu)\n",
             logstr, str?str:"-", large, r->large_objects);
     }
     return;
