@@ -166,6 +166,7 @@
     }
     # Actions: resource records.
     action zparser_rr_end {
+        process_rr();
         fprintf(stderr, "line %d: resource record ", parser->line);
         dname_print(stderr, parser->dname);
         fprintf(stderr, "\n");

@@ -24,6 +24,7 @@
 typedef struct zparser zparser_type;
 struct zparser {
     region_type* region;
+    region_type* rr_region;
     dname_type* origin;
     uint64_t ttl;
 
@@ -44,6 +45,9 @@ struct zparser {
     uint8_t dname_wire[DNAME_MAXLEN];
     uint8_t label_offsets[DNAME_MAXLEN];
     uint8_t label_count;
+
+    /* Temporary storage: resource records */
+    /*rr_type current_rr; */
 };
 
 #endif /* RZONEC_H */

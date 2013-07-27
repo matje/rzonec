@@ -40,6 +40,18 @@ static zparser_type* parser;
 
 
 /**
+ * Process resource record
+ *
+ */
+static int
+process_rr(void)
+{
+    /* all fine */
+    return 1;
+}
+
+
+/**
  * Create parser.
  *
  */
@@ -47,7 +59,8 @@ static void
 zparser_create()
 {
     region_type* r = region_create();
-    if (!r) {
+    region_type* rrr = region_create();
+    if (!r || !rrr) {
         return;
     }
     parser = (zparser_type*) region_alloc(r, sizeof(zparser_type));
@@ -55,6 +68,7 @@ zparser_create()
         return;
     }
     parser->region = r;
+    parser->rr_region = rrr;
     parser->origin = NULL;
     parser->ttl = DEFAULT_TTL;
     parser->line = 0;
@@ -78,6 +92,7 @@ zparser_create()
 static void
 zparser_cleanup(void)
 {
+    region_cleanup(parser->rr_region);
     region_cleanup(parser->region);
     parser = NULL;
     return;
