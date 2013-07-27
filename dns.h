@@ -35,15 +35,20 @@
 #define _NLNETLABS_DNS_DNS_H_
 
 /** CLASS */
-#define DNS_CLASS_IN     1 /* Class IN */
-#define DNS_CLASS_CS     2 /* Class CS */
-#define DNS_CLASS_CH     3 /* Class CHAOS */
-#define DNS_CLASS_HS     4 /* Class HS */
+#define DNS_CLASS_IN     1 /* RFC 1035: Internet class */
+#define DNS_CLASS_CS     2 /* RFC 1035: CS class */
+#define DNS_CLASS_CH     3 /* RFC 1035: Chaos class */
+#define DNS_CLASS_HS     4 /* RFC 1035: Hesiod class */
 #define DNS_CLASS_NONE 254 /* Class NONE */
 #define DNS_CLASS_ANY  255 /* Class ANY */
 
 /** TYPE */
-#define DNS_TYPE_SOA     6 /* RFC 1035 */
+#define DNS_TYPE_A       1 /* RFC 1035: an IPv4 host address */
+#define TYPE_NS          2 /* RFC 1035: an authoritative name server */
+#define TYPE_MD          3 /* RFC 1035: a mail destination (Obsolete - use MX) */
+#define TYPE_MF          4 /* RFC 1035: a mail forwarder (Obsolete - use MX) */
+#define TYPE_CNAME       5 /* RFC 1035: the canonical name for an alias */
+#define DNS_TYPE_SOA     6 /* RFC 1035: marks the start of authority of a zone */
 
 #endif /* _NLNETLABS_DNS_DNS_H_ */
 
