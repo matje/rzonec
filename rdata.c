@@ -1,5 +1,5 @@
 /*
- * $Id: dns.c 6501 2012-08-06 10:52:03Z matthijs $
+ * $Id: rdata.h 6501 2012-08-06 10:52:03Z matthijs $
  *
  * Copyright (c) 2013 NLNet Labs. All rights reserved.
  *
@@ -27,55 +27,40 @@
  */
 
 /**
- * DNS definitions.
+ * RDATA.
  *
  */
 
+#ifndef _NLNETLABS_DNS_RDATA_H_
+#define _NLNETLABS_DNS_RDATA_H_
+
+#include "dname.h"
 #include "dns.h"
+#include "region.h"
 
-#include <strings.h>
 
-static rrstruct_type rrstructs[(DNS_NUMRRTYPES+1)] = {
-/* 0 */ { NULL, 0, 1, 1, { DNS_RDATA_BINARY } },
-/* 1 */ { "A", DNS_TYPE_A, 1, 1, { DNS_RDATA_IPV4 } },
-/* 2 */ { "NS", DNS_TYPE_NS, 1, 1, { DNS_RDATA_COMPRESSED_DNAME } },
-/* 3 */ { "MD", DNS_TYPE_MD, 1, 1, { DNS_RDATA_UNCOMPRESSED_DNAME } },
-/* 4 */ { "MF", DNS_TYPE_MF, 1, 1, { DNS_RDATA_UNCOMPRESSED_DNAME } },
-/* 5 */ { "CNAME", DNS_TYPE_CNAME, 1, 1, { DNS_RDATA_COMPRESSED_DNAME } },
-/* 6 */ { "SOA", DNS_TYPE_SOA, 7, 7,
-          { DNS_RDATA_COMPRESSED_DNAME, DNS_RDATA_COMPRESSED_DNAME,
-            DNS_RDATA_INT32, DNS_RDATA_INT32, DNS_RDATA_INT32,
-            DNS_RDATA_INT32, DNS_RDATA_INT32 } },
+/**
+ * RDATA structure.
+ *
+ */
+typedef union rdata_union rdata_type;
+union rdata_union {
+    /** (Un)compressed) domain names */
+    dname_type* owner; /* TODO: pointer to domain node */
+    /* All other RDATA elements. */
+    uint16_t*   data;
 };
 
 
 /**
- * Get RR structure by name.
+ * Print RDATA element.
+ * @param fd:     file descriptor.
+ * @param rdata:  RDATA element.
+ * @param rrtype: RRtype
+ * @param pos:    position of RDATA element in RR.
  *
  */
-rrstruct_type*
-dns_rrstruct_by_name(const char* name)
-{
-    int i;
-    for (i = 1; i < DNS_NUMRRTYPES; i++) {
-        if (rrstructs[i].name && strcasecmp(rrstructs[i].name, name) == 0) {
-            return &rrstructs[i];
-        }
-    }
-    return &rrstructs[0];
-}
+void rdata_print(FILE* fd, rdaya_type* rdata, uint16_t rrtype, uint8_t pos);
 
-
-/**
- * Get RR structure by type.
- *
- */
-rrstruct_type*
-dns_rrstruct_by_type(uint16_t type)
-{
-    if (type < DNS_NUMRRTYPES) {
-        return &rrstructs[type];
-    }
-    return &rrstructs[0];
-}
+#endif /* _NLNETLABS_DNS_RDATA_H_ */
 
