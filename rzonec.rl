@@ -9,6 +9,7 @@
 
 #include "dname.h"
 #include "dns.h"
+#include "rr.h"
 #include "rzonec.h"
 
 #include <assert.h>

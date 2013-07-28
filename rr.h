@@ -39,6 +39,8 @@
 #include "rdata.h"
 #include "region.h"
 
+#include <stdio.h>
+
 
 /**
  * Resource record structure.
@@ -53,6 +55,22 @@ struct rr_struct {
     uint16_t klass;
     uint16_t rdlen;
 };
+
+/**
+ * Print RRtype.
+ * @param fd:     file descriptor.
+ * @param rrtype: RRtype.
+ *
+ */
+void rr_print_rrtype(FILE* fd, uint16_t rrtype);
+
+/**
+ * Print CLASS.
+ * @param fd:    file descriptor.
+ * @param klass: CLASS.
+ *
+ */
+void rr_print_class(FILE* fd, uint16_t klass);
 
 #endif /* _NLNETLABS_DNS_RR_H_ */
 

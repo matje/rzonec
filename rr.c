@@ -37,6 +37,7 @@
 static const char* logstr = "rr";
 
 
+
 /**
  * Print RRtype.
  *
@@ -49,6 +50,23 @@ rr_print_rrtype(FILE* fd, uint16_t rrtype)
         fprintf(fd, "%s", rrstruct->name);
     } else {
         fprintf(fd, "TYPE%d", (int) rrtype);
+    }
+    return;
+}
+
+
+/**
+ * Print CLASS.
+ *
+ */
+void
+rr_print_class(FILE* fd, uint16_t klass)
+{
+    rrclass_type* rrclass = dns_rrclass_by_type(klass);
+    if (rrclass->name) {
+        fprintf(fd, "%s", rrclass->name);
+    } else {
+        fprintf(fd, "CLASS%d", (int) klass);
     }
     return;
 }

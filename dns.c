@@ -35,7 +35,16 @@
 
 #include <strings.h>
 
-static rrstruct_type rrstructs[(DNS_NUMRRTYPES+1)] = {
+/* Taken from RFC 1035, section 3.2.4.  */
+static rrclass_type dns_rrclasses[DNS_NUMRRCLASSES+1] = {
+        { NULL, 0 },
+        { "IN", DNS_CLASS_IN },
+        { "CS", DNS_CLASS_CS },
+        { "CH", DNS_CLASS_CH },
+        { "HS", DNS_CLASS_HS },
+};
+
+static rrstruct_type dns_rrstructs[(DNS_NUMRRTYPES+1)] = {
 /* 0 */ { NULL, 0, 1, 1, { DNS_RDATA_BINARY } },
 /* 1 */ { "A", DNS_TYPE_A, 1, 1, { DNS_RDATA_IPV4 } },
 /* 2 */ { "NS", DNS_TYPE_NS, 1, 1, { DNS_RDATA_COMPRESSED_DNAME } },
@@ -50,6 +59,38 @@ static rrstruct_type rrstructs[(DNS_NUMRRTYPES+1)] = {
 
 
 /**
+ * Get RR class by name.
+ *
+ */
+rrclass_type*
+dns_rrclass_by_name(const char* name)
+{
+    int i;
+    for (i = 1; i < DNS_NUMRRCLASSES; i++) {
+        if (dns_rrclasses[i].name &&
+            strcasecmp(dns_rrclasses[i].name, name) == 0) {
+            return &dns_rrclasses[i];
+        }
+    }
+    return &dns_rrclasses[0];
+}
+
+
+/**
+ * Get RR class by type.
+ *
+ */
+rrclass_type*
+dns_rrclass_by_type(uint16_t type)
+{
+    if (type < DNS_NUMRRCLASSES) {
+        return &dns_rrclasses[type];
+    }
+    return &dns_rrclasses[0];
+}
+
+
+/**
  * Get RR structure by name.
  *
  */
@@ -58,11 +99,12 @@ dns_rrstruct_by_name(const char* name)
 {
     int i;
     for (i = 1; i < DNS_NUMRRTYPES; i++) {
-        if (rrstructs[i].name && strcasecmp(rrstructs[i].name, name) == 0) {
-            return &rrstructs[i];
+        if (dns_rrstructs[i].name &&
+            strcasecmp(dns_rrstructs[i].name, name) == 0) {
+            return &dns_rrstructs[i];
         }
     }
-    return &rrstructs[0];
+    return &dns_rrstructs[0];
 }
 
 
@@ -74,8 +116,8 @@ rrstruct_type*
 dns_rrstruct_by_type(uint16_t type)
 {
     if (type < DNS_NUMRRTYPES) {
-        return &rrstructs[type];
+        return &dns_rrstructs[type];
     }
-    return &rrstructs[0];
+    return &dns_rrstructs[0];
 }
 

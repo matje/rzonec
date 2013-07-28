@@ -39,7 +39,7 @@
 
 /** CLASS */
 #define DNS_CLASS_IN     1 /* RFC 1035: Internet class */
-#define DNS_CLASS_CS     2 /* RFC 1035: CS class */
+#define DNS_CLASS_CS     2 /* RFC 1035: CSNET class */
 #define DNS_CLASS_CH     3 /* RFC 1035: Chaos class */
 #define DNS_CLASS_HS     4 /* RFC 1035: Hesiod class */
 #define DNS_CLASS_NONE 254 /* Class NONE */
@@ -53,6 +53,7 @@
 #define DNS_TYPE_CNAME   5 /* RFC 1035: the canonical name for an alias */
 #define DNS_TYPE_SOA     6 /* RFC 1035: marks the start of authority of a zone */
 
+#define DNS_NUMRRCLASSES DNS_CLASS_HS+1 /* +1 for TYPE0 */
 #define DNS_NUMRRTYPES   DNS_TYPE_SOA+1 /* +1 for TYPE0 */
 
 /** RDATA */
@@ -72,6 +73,16 @@ typedef enum dns_rdata_format_enum dns_rdata_format;
 #define DNS_RDLEN_MAX 65535
 
 /**
+ * RR class structure.
+ *
+ */
+typedef struct rrclass_struct rrclass_type;
+struct rrclass_struct {
+    const char* name; /* Textual name */
+    uint16_t type; /* CLASS */
+};
+
+/**
  * RR structure structure.
  *
  */
@@ -83,6 +94,22 @@ struct rrstruct_struct {
     uint8_t maximum; /* Maximum number of RDATAs */
     uint8_t rdata[DNS_RDATA_MAX]; /* RDATAs */
 };
+
+/**
+ * Get RR class by name.
+ * @param name: name.
+ * @return:     (rrclass_type*) RR class.
+ *
+ */
+rrclass_type* dns_rrclass_by_name(const char* name);
+
+/**
+ * Get RR class by type.
+ * @param type: type.
+ * @return:     (rrclass_type*) RR class.
+ *
+ */
+rrclass_type* dns_rrclass_by_type(uint16_t type);
 
 /**
  * Get RR structure by name.

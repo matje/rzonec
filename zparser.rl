@@ -194,9 +194,12 @@
         fprintf(stderr, "[zparser] line %d: resource record ", parser->line);
         dname_print(stderr, parser->current_rr.owner);
         fprintf(stderr, "\t%u", parser->current_rr.ttl);
-        fprintf(stderr, "\tCLASS%d", parser->current_rr.klass);
-        fprintf(stderr, "\tTYPE%d", parser->current_rr.type);
+        fprintf(stderr, "\t");
+        rr_print_class(stderr, parser->current_rr.klass);
+        fprintf(stderr, "\t");
+        rr_print_rrtype(stderr, parser->current_rr.type);
         for (i = 0; i < parser->current_rr.rdlen; i++) {
+            fprintf(stderr, " ");
             rdata_print(stderr, &parser->current_rr.rdata[i],
                 parser->current_rr.type, i);
         }
