@@ -34,16 +34,49 @@ zonec_rdata_init(region_type *region, const void *data, size_t size)
  * Convert IPv4 address into RDATA element.
  *
  */
-uint16_t*
+static uint16_t*
 zonec_rdata_ipv4(region_type* region, const char* buf)
 {
     in_addr_t address;
     uint16_t *r = NULL;
     if (inet_pton(AF_INET, buf, &address) != 1) {
-        fprintf(stderr, "[%s] invalid IPv4 address '%s'\n", logstr, buf);
+        fprintf(stderr, "[%s] error: invalid IPv4 address '%s'\n", logstr, buf);
     } else {
         r = zonec_rdata_init(region, &address, sizeof(address));
     }
     return r;
+}
+
+
+/**
+ * Add parsed RDATA element into currently parsed resource record.
+ *
+ */
+int
+zonec_rdata_add(region_type* region, rr_type* rr, dns_rdata_format rdformat,
+   const char* rdbuf, size_t rdsize)
+{
+    uint16_t* d = NULL;
+    if (rr->rdlen > DNS_RDATA_MAX) {
+        fprintf(stderr, "[%s] error: too many rdata elements\n", logstr);
+        return 0;
+    }
+    if (!rdsize) {
+        fprintf(stderr, "[%s] error: empty rdata element\n", logstr);
+        return 0;
+    }
+
+    switch (rdformat) {
+        case DNS_RDATA_IPV4:
+            d = zonec_rdata_ipv4(region, rdbuf);
+    }
+
+    if (!d) {
+        fprintf(stderr, "[%s] error: bad rdata element '%s'\n", logstr, rdbuf);
+        return 0;
+    }
+    rr->rdata[rr->rdlen].data = d;
+    rr->rdlen++;
+    return 1;
 }
 

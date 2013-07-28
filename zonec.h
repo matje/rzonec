@@ -10,18 +10,24 @@
 #ifndef _NLNETLABS_UTIL_ZONEC_H_
 #define _NLNETLABS_UTIL_ZONEC_H_
 
+#include "dns.h"
 #include "region.h"
+#include "rr.h"
 
 #include <stdint.h>
 
+
 /**
- * Convert IPv4 address into RDATA element.
- * @param region: memory region.
- * @param buf:    buffer containing human-readable IPv4 address.
- * @return:       (uint16_t*) RDATA element.
+ * Add parsed RDATA element into currently parsed resource record.
+ * @param region:   memory region.
+ * @param rr:       currently parsed resource record.
+ * @param rdformat: type of RDATA.
+ * @param rdbuf:    buffer containing human-readable RDATA element.
+ * @return:         (int) 1 on success, 0 on failure.
  *
  */
-uint16_t* zonec_rdata_ipv4(region_type* region, const char* buf);
+int zonec_rdata_add(region_type* region, rr_type* rr,
+   dns_rdata_format rdformat, const char* rdbuf, size_t rdlen);
 
 #endif /* _NLNETLABS_UTIL_ZONEC_H_ */
 

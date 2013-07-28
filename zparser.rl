@@ -209,23 +209,12 @@
         parser->rdbuf[parser->rdsize] = '\0';
         fprintf(stderr, "[zparser] line %d: rdata ipv4 %s\n", parser->line,
             parser->rdbuf);
-
-        if (parser->current_rr.rdlen > DNS_RDATA_MAX) {
-            fprintf(stderr, "[zparser] error: line %d: too many rdata "
-                "elements\n", parser->line);
+        if (!zonec_rdata_add(parser->rr_region, &parser->current_rr,
+            DNS_RDATA_IPV4, parser->rdbuf, parser->rdsize)) {
+            fprintf(stderr, "[zparser] error: line %d: bad IPv4 address "
+                "'%s'\n", parser->line, parser->rdbuf);
             parser->totalerrors++;
             fhold; fgoto line;
-        } else {
-            parser->current_rr.rdata[parser->current_rr.rdlen].data = 
-                zonec_rdata_ipv4(parser->rr_region, parser->rdbuf);
-            if (!parser->current_rr.rdata[parser->current_rr.rdlen].data) {
-                fprintf(stderr, "[zparser] error: line %d: bad IPv4 address "
-                    "'%s'\n", parser->line, parser->rdbuf);
-                parser->totalerrors++;
-                fhold; fgoto line;
-            } else {
-                parser->current_rr.rdlen++;
-            }
         }
     }
 
