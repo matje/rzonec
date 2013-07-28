@@ -189,12 +189,18 @@
         parser->current_rr.ttl = parser->number;
     }
     action zparser_rr_end {
+        int i;
         rzonec_process_rr();
         fprintf(stderr, "[zparser] line %d: resource record ", parser->line);
         dname_print(stderr, parser->current_rr.owner);
         fprintf(stderr, "\t%u", parser->current_rr.ttl);
         fprintf(stderr, "\tCLASS%d", parser->current_rr.klass);
         fprintf(stderr, "\tTYPE%d", parser->current_rr.type);
+        for (i = 0; i < parser->current_rr.rdlen; i++) {
+            fprintf(stderr, " rdata:");
+            rdata_print(stderr, &parser->current_rr.rdata[i],
+                parser->current_rr.type, i);
+        }
         fprintf(stderr, "\n");
     }
     action zparser_rdata_start {
@@ -207,8 +213,6 @@
     }
     action zparser_rdata_ipv4 {
         parser->rdbuf[parser->rdsize] = '\0';
-        fprintf(stderr, "[zparser] line %d: rdata ipv4 %s\n", parser->line,
-            parser->rdbuf);
         if (!zonec_rdata_add(parser->rr_region, &parser->current_rr,
             DNS_RDATA_IPV4, parser->rdbuf, parser->rdsize)) {
             fprintf(stderr, "[zparser] error: line %d: bad IPv4 address "

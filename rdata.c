@@ -1,5 +1,5 @@
 /*
- * $Id: rdata.h 6501 2012-08-06 10:52:03Z matthijs $
+ * $Id: rdata.c 6501 2012-08-06 10:52:03Z matthijs $
  *
  * Copyright (c) 2013 NLNet Labs. All rights reserved.
  *
@@ -31,36 +31,30 @@
  *
  */
 
-#ifndef _NLNETLABS_DNS_RDATA_H_
-#define _NLNETLABS_DNS_RDATA_H_
-
-#include "dname.h"
 #include "dns.h"
-#include "region.h"
+#include "rdata.h"
 
-
-/**
- * RDATA structure.
- *
- */
-typedef union rdata_union rdata_type;
-union rdata_union {
-    /** (Un)compressed) domain names */
-    dname_type* owner; /* TODO: pointer to domain node */
-    /* All other RDATA elements. */
-    uint16_t*   data;
-};
-
+static const char* logstr = "rdata";
 
 /**
  * Print RDATA element.
- * @param fd:     file descriptor.
- * @param rdata:  RDATA element.
- * @param rrtype: RRtype
- * @param pos:    position of RDATA element in RR.
  *
  */
-void rdata_print(FILE* fd, rdaya_type* rdata, uint16_t rrtype, uint8_t pos);
-
-#endif /* _NLNETLABS_DNS_RDATA_H_ */
-
+void
+rdata_print(FILE* fd, rdata_type* rdata, uint16_t rrtype, uint8_t pos)
+{
+    rrstruct_type* rrstruct;
+    if (!fd || !rdata) {
+        return;
+    }
+    rrstruct = dns_rrstruct_by_type(rrtype);
+    switch (rrstruct->rdata[pos]) {
+        case DNS_RDATA_IPV4:
+            fprintf(fd, "<ipv4>");
+            break;
+        default:
+            fprintf(fd, "<unknown>");
+            break;
+    }
+    return;
+}

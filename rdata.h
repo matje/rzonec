@@ -51,5 +51,16 @@ union rdata_union {
     uint16_t*   data;
 };
 
+
+/**
+ * Print RDATA element.
+ * @param fd:     file descriptor.
+ * @param rdata:  RDATA element.
+ * @param rrtype: RRtype.
+ * @param pos:    position of RDATA element in RR.
+ *
+ */
+void rdata_print(FILE* fd, rdata_type* rdata, uint16_t rrtype, uint8_t pos);
+
 #endif /* _NLNETLABS_DNS_RDATA_H_ */
 
