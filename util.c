@@ -63,7 +63,7 @@ util_hexdigit2int(char hx)
         case 'e': case 'E': return 14;
         case 'f': case 'F': return 15;
         default:
-            fprintf(stderr, "[%s] invalid hex char %c\n", logstr, hx);
+            fprintf(stderr, "[%s] error: invalid hex char %c\n", logstr, hx);
     }
     return -1;
 }

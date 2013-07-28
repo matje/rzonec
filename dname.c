@@ -161,7 +161,7 @@ dname_create(region_type* r, const char* str)
     assert(r);
     assert(str);
     if (!dname_str2wire(wire, str)) {
-        fprintf(stderr, "[%s] parse dname %s failed", logstr, str);
+        fprintf(stderr, "[%s] error: parse dname %s failed", logstr, str);
         return NULL;
     }
     while (1) {
@@ -190,10 +190,6 @@ dname_create(region_type* r, const char* str)
     }
     dname = (dname_type *) region_alloc(r, (sizeof(dname_type)
         + (label_count + size) * sizeof(uint8_t)));
-    if (!dname) {
-        fprintf(stderr, "[%s] region alloc failed", logstr);
-        return NULL;
-    }
     dname->size = size;
     dname->label_count = label_count;
     memcpy((uint8_t *) dname_label_offsets(dname), label_offsets,
@@ -239,18 +235,19 @@ dname_str2wire(uint8_t* wire, const char* str)
     }
     for (h = d, p = h + 1; *s; ++s, ++p) {
         if (p - wire >= DNAME_MAXLEN) {
-            fprintf(stderr, "[%s] max domainlen exceeded", logstr);
+            fprintf(stderr, "[%s] error: max domainlen exceeded", logstr);
             return 0;
         }
         switch (*s) {
             case '.':
                 if (p == h + 1) {
-                    fprintf(stderr, "[%s] empty label", logstr);
+                    fprintf(stderr, "[%s] error: empty label", logstr);
                     return 0;
                 } else {
                     label_length = p - h - 1;
                     if (label_length > LABEL_MAXLEN) {
-                        fprintf(stderr, "[%s] max labellen exceeded", logstr);
+                        fprintf(stderr, "[%s] error: max labellen exceeded",
+                            logstr);
                         return 0;
                     }
                     *h = label_length;
@@ -306,12 +303,7 @@ void dname_print(FILE* fd, dname_type* dname)
     char* dst;
     const uint8_t* src;
 
-    if (!dname) {
-        fprintf(stderr, "[%s] no dname to print\n", logstr);
-        return;
-    }
-    if (!fd) {
-        fprintf(stderr, "[%s] no fd to print to\n", logstr);
+    if (!dname || !fd) {
         return;
     }
     assert(dname->label_count > 0);

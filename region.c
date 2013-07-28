@@ -52,7 +52,8 @@ rmalloc(size_t size)
 {
     void* s = malloc(size);
     if (!s) {
-        fprintf(stderr, "[%s] malloc failed: %s", logstr, strerror(errno));
+        fprintf(stderr, "[%s] error: malloc failed: %s", logstr,
+            strerror(errno));
         exit(1);
     }
     return s;
@@ -68,7 +69,8 @@ rcalloc(size_t nmemb, size_t size)
 {
     void* s = calloc(nmemb, size);
     if (!s) {
-        fprintf(stderr, "[%s] malloc failed: %s", logstr, strerror(errno));
+        fprintf(stderr, "[%s] error: calloc failed: %s", logstr,
+            strerror(errno));
         exit(1);
     }
     return s;
@@ -168,7 +170,7 @@ region_alloc(region_type* r, size_t size)
         s = rmalloc(ALIGNMENT+size);
         /* add cleanup */
         if (!region_add_cleanup(r, s)) {
-            fprintf(stderr, "[%s] add cleanup failed", logstr);
+            fprintf(stderr, "[%s] error: add cleanup failed", logstr);
             free(s);
             return NULL;
         }
