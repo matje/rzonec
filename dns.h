@@ -90,12 +90,12 @@ struct rrstruct_struct {
  * @return:     (rrstruct_type*) RR structure.
  *
  */
-rrstruct_type* dns_rrstruct_by_name(const char *name);
+rrstruct_type* dns_rrstruct_by_name(const char* name);
 
 /**
  * Get RR structure by type.
  * @param type: type.
- * @returnL     (rrstruct_type*) RR structure.
+ * @return:     (rrstruct_type*) RR structure.
  *
  */
 rrstruct_type* dns_rrstruct_by_type(uint16_t type);
