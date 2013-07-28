@@ -197,7 +197,6 @@
         fprintf(stderr, "\tCLASS%d", parser->current_rr.klass);
         fprintf(stderr, "\tTYPE%d", parser->current_rr.type);
         for (i = 0; i < parser->current_rr.rdlen; i++) {
-            fprintf(stderr, " rdata:");
             rdata_print(stderr, &parser->current_rr.rdata[i],
                 parser->current_rr.type, i);
         }

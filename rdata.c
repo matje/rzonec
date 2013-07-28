@@ -34,7 +34,41 @@
 #include "dns.h"
 #include "rdata.h"
 
+#include <arpa/inet.h>
+#include <errno.h>
+#include <string.h>
+
 static const char* logstr = "rdata";
+
+
+/**
+ * Get data from RDATA element.
+ *
+ */
+static uint8_t*
+rdata_get_data(rdata_type* rdata)
+{
+    return (uint8_t*) (rdata->data + 1);
+}
+
+
+/**
+ * Print IPv4 RDATA element.
+ *
+ */
+static void
+rdata_print_ipv4(FILE* fd, rdata_type* rdata)
+{
+    char str[200];
+    /* assert fd, rdata */
+    if (inet_ntop(AF_INET, rdata_get_data(rdata), str, sizeof(str))) {
+        fprintf(fd, "%s", str);
+    } else {
+        fprintf(stderr, "[%s] inet_ntop failed: %s", logstr, strerror(errno));
+    }
+    return;
+}
+
 
 /**
  * Print RDATA element.
@@ -50,7 +84,7 @@ rdata_print(FILE* fd, rdata_type* rdata, uint16_t rrtype, uint8_t pos)
     rrstruct = dns_rrstruct_by_type(rrtype);
     switch (rrstruct->rdata[pos]) {
         case DNS_RDATA_IPV4:
-            fprintf(fd, "<ipv4>");
+            rdata_print_ipv4(fd, rdata);
             break;
         default:
             fprintf(fd, "<unknown>");
